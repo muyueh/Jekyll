@@ -1,0 +1,63 @@
+title: "Cats vs Dogs Studio"
+email: "hello@example.com"
+description: >-
+  A playful Jekyll blog exploring the eternal debate of cats versus dogs with
+  diary entries and portfolio highlights.
+baseurl: ""
+url: "https://example.github.io"
+
+remote_theme: dirkfabisch/mediator
+
+permalink: /:categories/:title/
+
+collections:
+  portfolio:
+    output: true
+    permalink: /portfolio/:title/
+
+navigation:
+  - title: Home
+    url: /
+  - title: Portfolio
+    url: /portfolio/
+  - title: Diary
+    url: /diary/
+  - title: About
+    url: /about/
+  - title: Search
+    url: /search/
+
+social:
+  - title: GitHub
+    url: https://github.com/example
+  - title: Instagram
+    url: https://instagram.com/example
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-remote-theme
+
+feed:
+  excerpt_only: true
+
+collections_dir: .
+
+markdown: kramdown
+theme_settings:
+  showSubscribe: false
+  words_per_minute: 180
+
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: post
+  - scope:
+      path: ""
+      type: "portfolio"
+    values:
+      layout: page
+      section: portfolio
