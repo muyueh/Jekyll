@@ -1,0 +1,37 @@
+// Minimal syntax highlighting styles vendored locally
+// Mirrors the GitHub Pages Rouge defaults closely enough for readability
+
+$code-bg: #f6f8fa;
+$code-border: #d0d7de;
+$code-text: #24292f;
+
+.highlight {
+  background: $code-bg;
+  border: 1px solid $code-border;
+  border-radius: 6px;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.highlight pre {
+  margin: 0;
+  padding: 1rem 1.25rem;
+}
+
+.highlight code,
+.highlight pre,
+code,
+pre {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: $code-text;
+}
+
+.highlight .c { color: #6a737d; font-style: italic; }
+.highlight .k { color: #d73a49; }
+.highlight .s { color: #032f62; }
+.highlight .na { color: #6f42c1; }
+.highlight .nt { color: #005cc5; }
+.highlight .m { color: #005cc5; }
+.highlight .p { color: #24292f; }

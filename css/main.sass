@@ -3,10 +3,19 @@
 
 @import 'syntax-highlighting'
 
-@import 'bourbon/bourbon'
+@mixin clearfix()
+  &::after
+    content: ""
+    display: table
+    clear: both
+
+@mixin box-sizing($mode)
+  -webkit-box-sizing: $mode
+  -moz-box-sizing: $mode
+  box-sizing: $mode
 
 .cf
-  @include clearfix
+  @include clearfix()
 
 $rs: 16px
 

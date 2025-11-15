@@ -13,20 +13,24 @@ gitGraph
    commit id: "Create jekyll.yml"
    commit id: "Refresh Ruby 3.1 dependencies"
    commit id: "Vendor Mediator theme assets"
+   commit id: "Patch Sass dependencies"
 ```
 
 ```mermaid
 stateDiagram-v2
     [*] --> Draft
     Draft --> Review
+    state SassPatch
     Review --> DependencyRefresh
     DependencyRefresh --> AssetVendoring
-    AssetVendoring --> Build
+    AssetVendoring --> SassPatch
+    SassPatch --> Build
     Build --> Deploy
     Deploy --> Monitor
     Monitor --> [*]
     DependencyRefresh --> Draft : needs tweaks
     AssetVendoring --> DependencyRefresh : missing upstream files
+    SassPatch --> AssetVendoring : Sass import missing
     Monitor --> DependencyRefresh : schedule updates
 ```
 
@@ -44,6 +48,7 @@ sequenceDiagram
     GitHub-->>Shell: Provide css/main.sass & print.css
     Dev->>Shell: Copy css files into the local site
     Dev->>Shell: Override head include with web-app meta
+    Dev->>Shell: Add local mixins & syntax highlighting partials
     Dev->>Shell: bundle install
     Shell->>Bundler: Resolve compatible gems
     Bundler-->>Shell: Install dependencies
@@ -60,6 +65,7 @@ graph TD
         D[Shell with Ruby 3.1 via mise]
         B[Bundler 2.5.22]
         C[Local css/main.sass & print.css]
+        S[_sass/_syntax-highlighting.scss]
         H[_includes/head.html override]
         J[Jekyll CLI]
     end
@@ -78,6 +84,7 @@ graph TD
     MT --> C
     D --> B --> J
     C --> J
+    S --> J
     H --> J
     J --> GA --> GP --> BR
 ```
@@ -87,7 +94,8 @@ graph TD
     Start([Start styling remediation]) --> CloneTheme[Clone Mediator repository]
     CloneTheme --> CopyCSS[Copy css/main.sass & print.css]
     CopyCSS --> UpdateHead[Add web-app meta override]
-    UpdateHead --> InstallDeps[Run bundle install]
+    UpdateHead --> AddMixins[Add local mixins & syntax partial]
+    AddMixins --> InstallDeps[Run bundle install]
     InstallDeps --> Verify[Run bundle exec jekyll build]
     Verify --> Commit[Commit vendored assets]
     Commit --> Deploy[GitHub Pages workflow succeeds]
@@ -100,8 +108,9 @@ flowchart LR
         D1[Select Ruby 3.1 with mise]
         D2[Clone Mediator assets]
         D3[Copy css & override head meta]
-        D4[Install deps & build site]
-        D5[Push styled commit]
+        D4[Add local mixins & syntax styles]
+        D5[Install deps & build site]
+        D6[Push styled commit]
     end
     subgraph Frontend
         F1[Serve css/main.css locally]
@@ -115,7 +124,7 @@ flowchart LR
         V1[Load themed site]
     end
 
-    D1 --> D2 --> D3 --> D4 --> D5 --> F1 --> F2 --> B1 --> B2 --> V1
+    D1 --> D2 --> D3 --> D4 --> D5 --> D6 --> F1 --> F2 --> B1 --> B2 --> V1
 ```
 
 Cats vs Dogs Studio is a demonstration Jekyll project that showcases the [Mediator theme](https://github.com/dirkfabisch/mediator) with sample content focused on the playful rivalry between feline and canine companions.
