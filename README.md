@@ -12,6 +12,7 @@ gitGraph
    merge site-setup id: "Merge PR #1"
    commit id: "Create jekyll.yml"
    commit id: "Refresh Ruby 3.1 dependencies"
+   commit id: "Vendor Mediator theme assets"
 ```
 
 ```mermaid
@@ -19,11 +20,13 @@ stateDiagram-v2
     [*] --> Draft
     Draft --> Review
     Review --> DependencyRefresh
-    DependencyRefresh --> Build
+    DependencyRefresh --> AssetVendoring
+    AssetVendoring --> Build
     Build --> Deploy
     Deploy --> Monitor
     Monitor --> [*]
     DependencyRefresh --> Draft : needs tweaks
+    AssetVendoring --> DependencyRefresh : missing upstream files
     Monitor --> DependencyRefresh : schedule updates
 ```
 
@@ -31,20 +34,24 @@ stateDiagram-v2
 sequenceDiagram
     participant Dev as Developer
     participant Shell
+    participant GitHub as GitHub Repo
     participant Bundler
     participant Jekyll
     participant Actions as GitHub Actions
 
-    Dev->>Shell: Run bundle update activesupport (Ruby 3.1)
+    Dev->>Shell: git clone dirkfabisch/mediator for assets
+    Shell->>GitHub: Request theme sources
+    GitHub-->>Shell: Provide css/main.sass & print.css
+    Dev->>Shell: Copy css files into the local site
+    Dev->>Shell: Override head include with web-app meta
+    Dev->>Shell: bundle install
     Shell->>Bundler: Resolve compatible gems
-    Bundler-->>Shell: Write refreshed Gemfile.lock
-    Dev->>Shell: Normalize lockfile platforms
-    Shell->>Bundler: Keep only runtime platforms
+    Bundler-->>Shell: Install dependencies
     Dev->>Shell: bundle exec jekyll build
-    Shell->>Jekyll: Generate static site
+    Shell->>Jekyll: Generate static site with local CSS
     Jekyll-->>Shell: Build artifacts
     Shell->>Actions: Push branch
-    Actions-->>Dev: Pages workflow passes
+    Actions-->>Dev: Pages workflow passes with styling
 ```
 
 ```mermaid
@@ -52,51 +59,63 @@ graph TD
     subgraph Developer Environment
         D[Shell with Ruby 3.1 via mise]
         B[Bundler 2.5.22]
+        C[Local css/main.sass & print.css]
+        H[_includes/head.html override]
         J[Jekyll CLI]
+    end
+    subgraph Upstream Theme
+        MT[Mediator repository]
     end
     subgraph Automation
         GA[GitHub Actions Workflow]
-        GP[GitHub Pages]
+        GP[GitHub Pages CDN]
     end
     subgraph Audience
         BR[Visitor Browser]
     end
 
+    D --> MT
+    MT --> C
     D --> B --> J
+    C --> J
+    H --> J
     J --> GA --> GP --> BR
 ```
 
 ```mermaid
 graph TD
-    Start([Start dependency refresh]) --> CheckRuby[Confirm Ruby 3.1 runtime]
-    CheckRuby --> Update[Update activesupport]
-    Update --> Normalize[Normalize lockfile platforms]
-    Normalize --> Verify[Run bundle exec jekyll build]
-    Verify --> Commit[Commit refreshed files]
+    Start([Start styling remediation]) --> CloneTheme[Clone Mediator repository]
+    CloneTheme --> CopyCSS[Copy css/main.sass & print.css]
+    CopyCSS --> UpdateHead[Add web-app meta override]
+    UpdateHead --> InstallDeps[Run bundle install]
+    InstallDeps --> Verify[Run bundle exec jekyll build]
+    Verify --> Commit[Commit vendored assets]
     Commit --> Deploy[GitHub Pages workflow succeeds]
-    Deploy --> End([Serve updated site])
+    Deploy --> End([Serve styled site])
 ```
 
 ```mermaid
 flowchart LR
     subgraph Developer
         D1[Select Ruby 3.1 with mise]
-        D2[Run bundler updates]
-        D3[Push refreshed commit]
+        D2[Clone Mediator assets]
+        D3[Copy css & override head meta]
+        D4[Install deps & build site]
+        D5[Push styled commit]
     end
     subgraph Frontend
-        F1[Regenerate static pages]
-        F2[Confirm theme assets]
+        F1[Serve css/main.css locally]
+        F2[Expose mobile-web-app-capable meta]
     end
     subgraph Backend
         B1[Execute Pages workflow]
-        B2[Serve updated build]
+        B2[Serve styled build]
     end
     subgraph Visitor
-        V1[Load refreshed site]
+        V1[Load themed site]
     end
 
-    D1 --> D2 --> D3 --> F1 --> F2 --> B1 --> B2 --> V1
+    D1 --> D2 --> D3 --> D4 --> D5 --> F1 --> F2 --> B1 --> B2 --> V1
 ```
 
 Cats vs Dogs Studio is a demonstration Jekyll project that showcases the [Mediator theme](https://github.com/dirkfabisch/mediator) with sample content focused on the playful rivalry between feline and canine companions.
