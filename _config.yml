@@ -20,8 +20,16 @@ navigation:
     url: /
   - title: Portfolio
     url: /portfolio/
+  - title: Services
+    url: /services/
+  - title: Events
+    url: /events/
   - title: Diary
     url: /diary/
+  - title: Resources
+    url: /resources/
+  - title: Team
+    url: /team/
   - title: About
     url: /about/
   - title: Search
