@@ -15,6 +15,7 @@ gitGraph
    commit id: "Vendor Mediator theme assets"
    commit id: "Patch Sass dependencies"
    commit id: "Expand sample content and navigation"
+   commit id: "Link homepage to key content collections"
 ```
 
 ```mermaid
@@ -27,7 +28,8 @@ stateDiagram-v2
     AssetAuthoring --> Review
     Review --> Publishing
     Publishing --> NavigationUpdate
-    NavigationUpdate --> Build
+    NavigationUpdate --> HomepageCuration
+    HomepageCuration --> Build
     Build --> Deploy
     Deploy --> Monitor
     Monitor --> ContentPlanning
@@ -49,7 +51,7 @@ sequenceDiagram
     Dev->>Editor: Draft Markdown with sample data tables & lists
     Editor-->>Dev: Provide copy edits and fact checks
     Dev->>Repo: Stage posts, portfolio items, and resources
-    Dev->>Repo: Update navigation & README diagrams
+    Dev->>Repo: Update navigation, homepage links & README diagrams
     Repo-->>Dev: Confirm clean diff
     Dev->>Jekyll: bundle exec jekyll build
     Jekyll-->>Dev: Verify site builds with new content
@@ -66,6 +68,7 @@ graph TD
     end
     subgraph Site Build
         DEV[Developer Workstation]
+        HP[Homepage collections]
         BND[Bundler]
         JEK[Jekyll CLI]
     end
@@ -79,7 +82,7 @@ graph TD
 
     CAL --> MD
     CAL --> RES
-    MD --> DEV --> BND --> JEK
+    MD --> DEV --> HP --> BND --> JEK
     RES --> JEK
     JEK --> GA --> GP --> VIS
 ```
@@ -90,7 +93,8 @@ graph TD
     GatherBriefs --> DraftContent[Draft posts, portfolio entries, and pages]
     DraftContent --> PeerReview[Peer review copy & data]
     PeerReview --> UpdateNavigation[Refresh navigation links]
-    UpdateNavigation --> AddResources[Upload supporting PDFs]
+    UpdateNavigation --> CurateHomepage[Wire homepage links]
+    CurateHomepage --> AddResources[Upload supporting PDFs]
     AddResources --> BuildSite[Run bundle exec jekyll build]
     BuildSite --> CommitChanges[Commit expanded sample set]
     CommitChanges --> Deploy[Push branch & run Pages workflow]
@@ -108,9 +112,10 @@ flowchart LR
         D1[Draft Markdown posts]
         D2[Create portfolio case studies]
         D3[Author services/events/team pages]
-        D4[Generate placeholder PDFs]
-        D5[Run bundle exec jekyll build]
-        D6[Commit & push updates]
+        D4[Curate homepage entry points]
+        D5[Generate placeholder PDFs]
+        D6[Run bundle exec jekyll build]
+        D7[Commit & push updates]
     end
     subgraph Frontend
         F1[Mediator theme renders new navigation]
@@ -129,7 +134,7 @@ flowchart LR
     C1 --> D1
     C2 --> D2
     C3 --> D3
-    D3 --> D4 --> D5 --> D6 --> F1 --> F2 --> B1 --> B2 --> V1
+    D3 --> D4 --> D5 --> D6 --> D7 --> F1 --> F2 --> B1 --> B2 --> V1
     B2 --> V2
     B2 --> V3
 ```
